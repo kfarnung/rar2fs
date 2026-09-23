@@ -30,6 +30,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <wchar.h>
+#include <ctype.h>
 #include <limits.h>
 #include <libgen.h>
 #include <pthread.h>
@@ -279,6 +280,23 @@ static void free_parent(struct parent_node *p)
         }
 }
 
+static char *trim(char *s)
+{
+        char *end;
+
+        while (isspace((unsigned char)*s))
+                s++;
+
+        if (!*s)
+                return s;
+
+        end = s + strlen(s) - 1;
+        while (end > s && isspace((unsigned char)*end))
+                *end-- = 0;
+
+        return s;
+}
+
 /*!
  *****************************************************************************
  *
@@ -301,7 +319,7 @@ static struct child_node *find_next_child(FILE *fp, struct parent_node *p,
                         sscanf(s, "%s", s); /* trim white-spaces */
                         cnode = malloc(sizeof(struct child_node));
                         cnode->name = strdup(s);
-                        cnode->value = strdup(v);
+                        cnode->value = strdup(trim(v));
                         cnode->pos = ftell(fp);
                         return cnode;
                 } else {
@@ -435,18 +453,6 @@ static void __entry_set_seek_length(struct config_entry *e,
  *****************************************************************************
  *
  ****************************************************************************/
-static void __entry_set_save_eof(struct config_entry *e,
-                        struct child_node *cnode)
-{
-        if (!strcasecmp(cnode->value, "true")) {
-                e->save_eof = 1;
-                e->mask |= RAR_SAVE_EOF_PROP;
-        } else if (!strcasecmp(cnode->value, "false")) {
-                e->save_eof = 0;
-                e->mask |= RAR_SAVE_EOF_PROP;
-        }
-}
-
 static void __entry_set_bool(struct config_entry *e,
                         struct child_node *cnode, int prop, int *value)
 {
@@ -571,7 +577,8 @@ void rarconfig_init(const char *source, const char *cfg)
                 struct child_node *cnode;
                 while ((cnode = find_next_child(fp, p, cnode_next))) {
                         if (!strcasecmp(cnode->name, "save-eof"))
-                                __entry_set_save_eof(e, cnode);
+                                __entry_set_bool(e, cnode, RAR_SAVE_EOF_PROP,
+                                                &e->save_eof);
                         if (!strcasecmp(cnode->name, "no-eof-probe"))
                                 __entry_set_bool(e, cnode,
                                                 RAR_NO_EOF_PROBE_PROP,

@@ -26,7 +26,7 @@
 # 	save-eof = [true|false]
 # 	no-eof-probe = [true|false]
 # 	no-jump-probe = [true|false]
-#       alias = <"filename","alias">
+# 	alias = <"filename","alias">
 #
 # The optional path format of the archive specifier is an absolute path
 # relative to the mount point root and not the source folder. For volumes
