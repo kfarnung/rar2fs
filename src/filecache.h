@@ -66,14 +66,18 @@ struct filecache_entry {
                         unsigned int direct_io:1;
                         unsigned int avi_tested:1;
                         unsigned int save_eof:1;
+                        unsigned int no_eof_probe:1;
+                        unsigned int no_jump_probe:1;
 #else
+                        unsigned int no_jump_probe:1;
+                        unsigned int no_eof_probe:1;
                         unsigned int save_eof:1;
                         unsigned int avi_tested:1;
                         unsigned int direct_io:1;
                         unsigned int check_atime:1;
                         unsigned int dry_run_done:1;
                         unsigned int unresolved:1;
-                        unsigned int :21;
+                        unsigned int :19;
                         unsigned int vsize_resolved:1;
                         unsigned int encrypted:1;
                         unsigned int vsize_fixup_needed:1;

@@ -233,6 +233,13 @@ reads. The separate long jump heuristic remains enabled for other far-forward
 reads unless
 .B \-\-no-jump-probe
 is also used.
+This option may also be overridden per archive with
+.I no-eof-probe
+in
+.I .rarconfig .
+An explicit
+.I false
+value restores the default heuristic for that archive.
 .RE
 .TP
 .B \-\-no-jump-probe
@@ -246,6 +253,13 @@ Use this option to disable this fabricated-data fallback; the separate
 end-of-file probe heuristic remains enabled unless
 .B \-\-no-eof-probe
 is also used.
+This option may also be overridden per archive with
+.I no-jump-probe
+in
+.I .rarconfig .
+An explicit
+.I false
+value restores the default heuristic for that archive.
 .RE
 .SH MOUNT OPTIONS
 .TP

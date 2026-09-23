@@ -59,6 +59,8 @@ struct alias_entry {
 struct config_entry {
         int seek_length;
         int save_eof;
+        int no_eof_probe;
+        int no_jump_probe;
         wchar_t *password_w;
         char *password;
         struct alias_entry *aliases;
@@ -91,6 +93,14 @@ int rarconfig_getprop_int(const char *path, int prop)
                         pthread_mutex_unlock(&config_mutex);
                         return e->mask & RAR_SAVE_EOF_PROP
                                         ? e->save_eof : -1;
+                case RAR_NO_EOF_PROBE_PROP:
+                        pthread_mutex_unlock(&config_mutex);
+                        return e->mask & RAR_NO_EOF_PROBE_PROP
+                                        ? e->no_eof_probe : -1;
+                case RAR_NO_JUMP_PROBE_PROP:
+                        pthread_mutex_unlock(&config_mutex);
+                        return e->mask & RAR_NO_JUMP_PROBE_PROP
+                                        ? e->no_jump_probe : -1;
                 }
         }
         pthread_mutex_unlock(&config_mutex);
@@ -437,6 +447,18 @@ static void __entry_set_save_eof(struct config_entry *e,
         }
 }
 
+static void __entry_set_bool(struct config_entry *e,
+                        struct child_node *cnode, int prop, int *value)
+{
+        if (!strcasecmp(cnode->value, "true")) {
+                *value = 1;
+                e->mask |= prop;
+        } else if (!strcasecmp(cnode->value, "false")) {
+                *value = 0;
+                e->mask |= prop;
+        }
+}
+
 /*!
  *****************************************************************************
  *
@@ -550,6 +572,14 @@ void rarconfig_init(const char *source, const char *cfg)
                 while ((cnode = find_next_child(fp, p, cnode_next))) {
                         if (!strcasecmp(cnode->name, "save-eof"))
                                 __entry_set_save_eof(e, cnode);
+                        if (!strcasecmp(cnode->name, "no-eof-probe"))
+                                __entry_set_bool(e, cnode,
+                                                RAR_NO_EOF_PROBE_PROP,
+                                                &e->no_eof_probe);
+                        if (!strcasecmp(cnode->name, "no-jump-probe"))
+                                __entry_set_bool(e, cnode,
+                                                RAR_NO_JUMP_PROBE_PROP,
+                                                &e->no_jump_probe);
                         if (!strcasecmp(cnode->name, "seek-length"))
                                 __entry_set_seek_length(e, cnode);
                         if (!strcasecmp(cnode->name, "password"))

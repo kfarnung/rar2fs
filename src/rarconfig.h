@@ -34,6 +34,8 @@
 #define RAR_SEEK_LENGTH_PROP 0x01
 #define RAR_SAVE_EOF_PROP 0x02
 #define RAR_PASSWORD_PROP 0x04
+#define RAR_NO_EOF_PROBE_PROP 0x08
+#define RAR_NO_JUMP_PROBE_PROP 0x10
 
 void rarconfig_init(const char *source, const char *cfg);
 void rarconfig_destroy();
@@ -49,4 +51,3 @@ const char *rarconfig_getalias(const char *path, const char *file);
 void rarconfig_setalias(const char *path, const char *file, const char *alias);
 
 #endif
-

@@ -256,6 +256,46 @@ static int get_save_eof(char *rar)
         return OPT_SET(OPT_KEY_SAVE_EOF) ? 1 : 0;
 }
 
+static int get_no_eof_probe(char *rar)
+{
+        if (rar) {
+                char *s = OPT_STR(OPT_KEY_SRC, 0);
+                int no_eof_probe;
+
+                if (strstr(rar, s))
+                        rar += strlen(s);
+                no_eof_probe = rarconfig_getprop(int, rar,
+                                RAR_NO_EOF_PROBE_PROP);
+                if (no_eof_probe >= 0)
+                        return no_eof_probe;
+                no_eof_probe = rarconfig_getprop(int, basename(rar),
+                                RAR_NO_EOF_PROBE_PROP);
+                if (no_eof_probe >= 0)
+                        return no_eof_probe;
+        }
+        return OPT_SET(OPT_KEY_NO_EOF_PROBE) ? 1 : 0;
+}
+
+static int get_no_jump_probe(char *rar)
+{
+        if (rar) {
+                char *s = OPT_STR(OPT_KEY_SRC, 0);
+                int no_jump_probe;
+
+                if (strstr(rar, s))
+                        rar += strlen(s);
+                no_jump_probe = rarconfig_getprop(int, rar,
+                                RAR_NO_JUMP_PROBE_PROP);
+                if (no_jump_probe >= 0)
+                        return no_jump_probe;
+                no_jump_probe = rarconfig_getprop(int, basename(rar),
+                                RAR_NO_JUMP_PROBE_PROP);
+                if (no_jump_probe >= 0)
+                        return no_jump_probe;
+        }
+        return OPT_SET(OPT_KEY_NO_JUMP_PROBE) ? 1 : 0;
+}
+
 /*!
  *****************************************************************************
  *
@@ -1491,7 +1531,7 @@ check_idx:
                                         }
                                 }
                         }
-                        if (OPT_SET(OPT_KEY_NO_EOF_PROBE)) {
+                        if (op->entry_p->flags.no_eof_probe) {
                                 eof_probe_disarmed = 1;
                                 op->seq++;
                         } else {
@@ -1543,7 +1583,7 @@ check_idx:
                          * This case is very likely for multi-part AVI 2.0.
                          */
                         if (!eof_probe_disarmed &&
-                                        !OPT_SET(OPT_KEY_NO_JUMP_PROBE) &&
+                                        !op->entry_p->flags.no_jump_probe &&
                                         op->seq < 25 &&
                                         ((offset + size) - op->buf->offset)
                                         > (IOB_SZ - IOB_HIST_SZ)) {
@@ -2628,6 +2668,8 @@ static struct filecache_entry *__listrar_tocache(char *file,
                                 entry_p->flags.encrypted = 1;
                 }
         }
+        entry_p->flags.no_eof_probe = get_no_eof_probe(entry_p->rar_p);
+        entry_p->flags.no_jump_probe = get_no_jump_probe(entry_p->rar_p);
         entry_p->method = arc->hdr.Method;
         set_rarstats(entry_p, arc, 0);
 
