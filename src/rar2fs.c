@@ -1435,7 +1435,6 @@ static int lread_rar(char *buf, size_t size, off_t offset,
 {
         int n = 0;
         struct io_context* op = FH_TOCONTEXT(fi->fh);
-        int eof_probe_disarmed = 0;
 #ifdef DEBUG_READ
         char *buf_saved = buf;
         off_t offset_saved = offset;
@@ -1532,7 +1531,6 @@ check_idx:
                                 }
                         }
                         if (op->entry_p->flags.no_eof_probe) {
-                                eof_probe_disarmed = 1;
                                 op->seq++;
                         } else {
                                 printd(3, "seq=%d    long jump hack1    offset=%" PRIu64 ","
@@ -1582,8 +1580,7 @@ check_idx:
                          * fake data to propagate in sub-sequent reads.
                          * This case is very likely for multi-part AVI 2.0.
                          */
-                        if (!eof_probe_disarmed &&
-                                        !op->entry_p->flags.no_jump_probe &&
+                        if (!op->entry_p->flags.no_jump_probe &&
                                         op->seq < 25 &&
                                         ((offset + size) - op->buf->offset)
                                         > (IOB_SZ - IOB_HIST_SZ)) {
